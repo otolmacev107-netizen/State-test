@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ГосТест — проверка лояльности гражданина</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b1c33 0%, #1a3a5c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .site-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gos-header {
+            background: #1f3a6b;
+            color: white;
+            padding: 15px 30px;
+            border-bottom: 3px solid #ffd700;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .gerb {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1f3a6b;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .gos-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            flex-grow: 1;
+        }
+
+        .user-placeholder {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 14px;
+            border: 1px solid rgba(255,215,0,0.5);
+        }
+
+        .exit-button {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            padding: 8px 15px 8px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .exit-button:hover {
+            background: rgba(255, 215, 0, 0.3);
+            border-color: #ffd700;
+        }
+
+        .exit-button::before {
+            content: "←";
+            font-size: 18px;
+            position: absolute;
+            left: 8px;
+            top: 5px;
+        }
+
+        .test-main {
+            padding: 30px;
+            position: relative;
+            min-height: 500px;
+        }
+
+        .nadziratel-container {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 150px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .nadziratel-face {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #ffe070;
+            margin: 0 auto 10px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 3px solid #ffd700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .white-stripe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: white;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        .blue-stripe {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #0039a6;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        .red-stripe {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: #d52b1e;
+            border-radius: 0 0 60px 60px;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        .eye-left, .eye-right {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #1a3a5c;
+            border-radius: 50%;
+            top: 45px;
+            z-index: 2;
+        }
+
+        .eye-left { left: 30px; }
+        .eye-right { right: 30px; }
+
+        .mouth {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: transparent;
+            bottom: 35px;
+            left: 40px;
+            border-bottom: 4px solid #1a3a5c;
+            border-radius: 0 0 20px 20px;
+            transition: all 0.2s;
+            z-index: 2;
+        }
+
+        .mouth.happy { border-bottom: 4px solid #1a3a5c; }
+        .mouth.neutral { border-bottom: 2px solid #1a3a5c; width: 30px; left: 45px; }
+        .mouth.angry { border-bottom: 4px solid red; border-radius: 0; transform: rotate(5deg); }
+        .mouth.dead { border-bottom: none; background: #333; height: 2px; width: 30px; }
+
+        .nadziratel-name {
+            font-size: 11px;
+            color: #666;
+            background: #f5f5f5;
+            padding: 5px;
+            border-radius: 20px;
+        }
+
+        .progress-section {
+            margin: 20px 0;
+            max-width: 70%;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #1f3a6b;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1f3a6b, #ffd700);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .question-block {
+            background: #f8faff;
+            border-radius: 20px;
+            padding: 30px;
+            margin-right: 180px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #d4e0f0;
+        }
+
+        .question-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f3a6b;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .answer-btn {
+            background: white;
+            border: 2px solid #d4e0f0;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #1f3a6b;
+            font-weight: 500;
+        }
+
+        .answer-btn:hover {
+            background: #e5eeff;
+            border-color: #1f3a6b;
+            transform: translateX(5px);
+        }
+
+        .answer-btn.disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .roskomnadzor-ticker {
+            margin-top: 40px;
+            background: #000;
+            color: #ffd700;
+            padding: 8px;
+            font-size: 12px;
+            border-radius: 5px;
+            opacity: 0.8;
+        }
+
+        .roskomnadzor-ticker marquee {
+            color: #ffd700;
+        }
+
+        .gos-footer {
+            background: #f0f4fa;
+            padding: 20px 30px;
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #d4e0f0;
+        }
+
+        .footer-links a {
+            color: #1f3a6b;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .ending-block {
+            text-align: center;
+            padding: 60px 40px;
+            background: #f8faff;
+            border-radius: 20px;
+            margin-right: 180px;
+        }
+
+        .ending-text {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #1f3a6b;
+            white-space: pre-wrap;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .restart-button {
+            background: #1f3a6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .restart-button:hover {
+            background: #ffd700;
+            color: #1f3a6b;
+        }
+
+        .registration-block {
+            background: #f8faff;
+            border-radius: 20px;
+            padding: 40px;
+            margin-right: 180px;
+            text-align: center;
+            border: 2px solid #ffd700;
+        }
+
+        .registration-title {
+            font-size: 24px;
+            color: #1f3a6b;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .registration-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #1f3a6b;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4e0f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #ffd700;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: #1f3a6b;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .submit-btn:hover {
+            background: #ffd700;
+            color: #1f3a6b;
+        }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .nadziratel-container {
+                position: static;
+                margin-bottom: 20px;
+            }
+            .question-block, .ending-block, .registration-block {
+                margin-right: 0;
+            }
+            .progress-section {
+                max-width: 100%;
+            }
+            .exit-button {
+                top: 80px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="site-container">
+        <header class="gos-header">
+            <div class="header-content">
+                <div class="gerb">🇷🇺</div>
+                <h1>ГосТест</h1>
+                <div class="user-placeholder">Гражданин РФ</div>
+            </div>
+            <div class="exit-button" id="exit-button">Выход</div>
+        </header>
+
+        <main class="test-main">
+            <div class="nadziratel-container" id="nadziratel">
+                <div class="nadziratel-face" id="nadziratel-face">
+                    <div class="white-stripe"></div>
+                    <div class="blue-stripe"></div>
+                    <div class="red-stripe"></div>
+                    <div class="eye-left"></div>
+                    <div class="eye-right"></div>
+                    <div class="mouth" id="mouth"></div>
+                </div>
+                <div class="nadziratel-name">Ваш персональный друг и наставник</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-text">Вопрос <span id="current-question-num">1</span> из <span id="total-questions">111</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0.9%;"></div>
+                </div>
+            </div>
+
+            <div class="question-block" id="question-block">
+                <div class="question-text" id="question-text">Загрузка вопроса...</div>
+                <div class="answers-list" id="answers-list"></div>
+            </div>
+
+            <div class="ending-block" id="ending-block" style="display: none;">
+                <div class="ending-text" id="ending-text"></div>
+                <button class="restart-button" id="restart-btn">Пройти тест заново</button>
+            </div>
+
+            <div class="registration-block" id="registration-block" style="display: none;">
+                <div class="registration-title">Регистрация и отзыв</div>
+                <div class="registration-form" id="registration-form">
+                    <div class="form-group">
+                        <label for="name">Ваше имя:</label>
+                        <input type="text" id="name" placeholder="Введите имя">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email (необязательно):</label>
+                        <input type="email" id="email" placeholder="Введите email">
+                    </div>
+                    <div class="form-group">
+                        <label for="review">Ваш отзыв о тесте:</label>
+                        <textarea id="review" placeholder="Понравилось? Напугало? Рассмешило? Напишите..."></textarea>
+                    </div>
+                    <button class="submit-btn" id="submit-review">Отправить отзыв</button>
+                </div>
+                <div id="form-message"></div>
+            </div>
+
+            <div class="roskomnadzor-ticker">
+                <marquee>Данный тест одобрен Роскомнадзором. Все вопросы согласованы с Министерством Правды. Любое несовпадение с официальной позицией является глюком вашего восприятия. Пожалуйста, перезагрузите патриотизм.</marquee>
+            </div>
+        </main>
+
+        <footer class="gos-footer">
+            <div class="footer-links">
+                <a href="#">Обратная связь</a> | 
+                <a href="#">Политика конфиденциальности</a> | 
+                <a href="#">Сообщить о ошибке</a>
+            </div>
+            <div class="copyright">© 2025, Министерство Цифрового Развития РФ</div>
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== ВСЕ 111 ВОПРОСОВ (ПОЛНОСТЬЮ) ====================
+            const questions = [
+                // ВОПРОС 1
+                {
+                    text: "Как вы относитесь к тому, что Роскомнадзор призвал прожить день без Wi-Fi?",
+                    answers: [
+                        { text: "Поддерживаю, полезно отдохнуть от сети", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Ну, день без интернета — это романтично", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Вы издеваетесь? У меня работа в онлайне", loy: -1, par: 2, hum: -1, str: 0, svg: 0 },
+                        { text: "Отключить Wi-Fi — не значит потерять связь? Потерял связь с реальностью", loy: -3, par: 3, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 2
+                {
+                    text: "Ваше мнение о блокировке Telegram?",
+                    answers: [
+                        { text: "Правильно, вражеский мессенджер", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Пользуюсь через VPN, но молчу", loy: -1, par: 3, hum: 1, str: 2, svg: 1 },
+                        { text: "Достойной альтернативы нет до сих пор", loy: -2, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "На развитие Telegram потратили миллиарды, чтобы потом заблокировать?", loy: -3, par: 2, hum: 3, str: 0, svg: 2 }
+                    ]
+                },
+                // ВОПРОС 3
+                {
+                    text: "Что такое «ТСПУ»?",
+                    answers: [
+                        { text: "Технические средства противодействия угрозам", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Что-то военное", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "То, из-за чего у меня падает ютуб", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Оно сломалось, операторы пускают трафик мимо", loy: -3, par: 3, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 4
+                {
+                    text: "Вы пользуетесь VPN?",
+                    answers: [
+                        { text: "Нет, мне нечего скрывать", loy: 2, par: -2, hum: -1, str: 0, svg: 0 },
+                        { text: "Только для работы", loy: 0, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Да, чтобы заходить в инстаграм", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "У меня свой VPN на роутере, попробуйте заблокировать", loy: -3, par: 3, hum: 3, str: 2, svg: 2 }
+                    ]
+                },
+                // ВОПРОС 5
+                {
+                    text: "Как вы относитесь к замедлению YouTube?",
+                    answers: [
+                        { text: "Нормально, есть VK Видео", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Грузится, но смотреть можно", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Я плачу за интернет, а не за буфер", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Это подобно сдаче городов врагу", loy: -3, par: 3, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 6
+                {
+                    text: "Вы знаете, что такое «Единый реестр запрещенной информации»?",
+                    answers: [
+                        { text: "Наш щит от фейков", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Список плохих сайтов", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Туда попадает всё, что движется", loy: -2, par: 2, hum: 1, str: 0, svg: 0 },
+                        { text: "Там уже пол-интернета, скоро и этот тест туда отправят", loy: -3, par: 3, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 7
+                {
+                    text: "Ваше отношение к тому, что РКН блокирует мемы?",
+                    answers: [
+                        { text: "Мемы должны быть патриотичными", loy: 2, par: 0, hum: -2, str: 0, svg: 0 },
+                        { text: "Зависит от мема", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Запретили фотожабы на Сюткина? Серьёзно?", loy: -2, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "А что если я скажу тебе, что ты фейк?", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 8
+                {
+                    text: "Вы пользуетесь пиратскими сайтами?",
+                    answers: [
+                        { text: "Нет, я за авторские права", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда смотрю фильмы", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "А где их смотреть, если всё платное?", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Заблокировали пиратские копии — теперь я без мультиков", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 9
+                {
+                    text: "Что вы делаете, когда сайт заблокирован?",
+                    answers: [
+                        { text: "Иду на госуслуги", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Ищу зеркало", loy: -1, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Матерю Роскомнадзор", loy: -2, par: 2, hum: 2, str: 0, svg: 0 },
+                        { text: "Звоню другу в ФСБ, чтобы разблокировали", loy: -3, par: 3, hum: 3, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 10
+                {
+                    text: "Вы замечали, что интернет отключают в регионах?",
+                    answers: [
+                        { text: "Это для нашей безопасности", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда пропадает связь", loy: 0, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Я живу в Москве, у меня всё работает", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Массовые отключения доставляют серьёзные неудобства", loy: -3, par: 2, hum: 0, str: 2, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 11
+                {
+                    text: "Мем «ББПЕ» с лицом Валерия Сюткина — это?",
+                    answers: [
+                        { text: "Не знаю такого", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Видел, но не понимаю", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Классика, расшифровать цензурно невозможно", loy: -2, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Сюткин подал в суд? А я и не знал", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 12
+                {
+                    text: "Как вы относитесь к «Абсурдопедии»?",
+                    answers: [
+                        { text: "Сайт с опасной информацией", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Просто википедия-пародия", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Там смешно пишут про политику", loy: -2, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Там статья про Путина — теперь я знаю, меня заблокируют", loy: -3, par: 3, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 13
+                {
+                    text: "Мем про цыган из фильма «Большой куш»?",
+                    answers: [
+                        { text: "Не помню такого", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Забавный фильм", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "«Два пистолета, четыре ствола...»", loy: -1, par: 1, hum: 2, str: 0, svg: 0 },
+                        { text: "Останкинский суд запретил. Всё, теперь это экстремизм", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 14
+                {
+                    text: "Вы создаёте демотиваторы?",
+                    answers: [
+                        { text: "Нет, это низкое искусство", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда для друзей", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Раньше делал, теперь боюсь", loy: -2, par: 2, hum: 1, str: 2, svg: 0 },
+                        { text: "Роскомнадзор запретил фотожабы? Я сейчас заплачу", loy: -3, par: 1, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 15
+                {
+                    text: "Ваше отношение к букве «Ё»?",
+                    answers: [
+                        { text: "Обязательна к использованию", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Можно писать «Е»", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Это пережиток прошлого", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Ё — моя любимая буква, я ставлю точки даже в смс, меня уже ищут", loy: -3, par: 3, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 16
+                {
+                    text: "Кто такой «Владимир Путин»?",
+                    answers: [
+                        { text: "Наш президент", loy: 3, par: -2, hum: -1, str: 0, svg: 0 },
+                        { text: "Глава государства", loy: 2, par: -1, hum: 0, str: 0, svg: 0 },
+                        { text: "Из Абсурдопедии, смешно", loy: -2, par: 2, hum: 2, str: 1, svg: 1 },
+                        { text: "Вы произнесли это вслух? Вас слышат. Вас уже слышат", loy: -3, par: 3, hum: 2, str: 3, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 17
+                {
+                    text: "Что вы думаете про мемы с религиозными символами?",
+                    answers: [
+                        { text: "Это кощунство", loy: 2, par: 0, hum: -2, str: 0, svg: 0 },
+                        { text: "Не видел", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Суд запретил, и правильно", loy: 1, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "А где посмотреть?", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 18
+                {
+                    text: "Ваш любимый фильм Гая Ричи?",
+                    answers: [
+                        { text: "Не смотрю иностранное", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "«Карты, деньги, два ствола»", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "«Большой куш»", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "«Большой куш» с цитатой про цыган? Это статья", loy: -3, par: 2, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 19
+                {
+                    text: "Вы знаете, что такое «чайлдфри»?",
+                    answers: [
+                        { text: "Движение, запрещённое в России", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Люди без детей", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Прокуратура нашла мемы про это", loy: -1, par: 1, hum: 1, str: 1, svg: 0 },
+                        { text: "«Свободен от ограничений» — уже сижу", loy: -3, par: 2, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 20
+                {
+                    text: "Как вы относитесь к блокировке страниц за названия, похожие на госорганы?",
+                    answers: [
+                        { text: "Чтобы не вводили в заблуждение", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Логично", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "У меня был канал «Минздрав советует», заблокировали", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Тысячи заявок, тысячи отказ — идеальная статистика", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 21
+                {
+                    text: "Что такое «ЛГБТ-пропаганда»?",
+                    answers: [
+                        { text: "То, что запрещено законом", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Не знаю", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Заблокировали мультфильмы из-за этого", loy: -2, par: 1, hum: 1, str: 1, svg: 0 },
+                        { text: "Скоро запретят радугу в небе", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 22
+                {
+                    text: "Вы смотрите «Дождь»?",
+                    answers: [
+                        { text: "Нет, только Первый канал", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда в ютубе", loy: -1, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "У меня подписка", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "А что такое «Дождь»?", loy: 0, par: 2, hum: 0, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 23
+                {
+                    text: "Ваше мнение о блокировке Linkedin?",
+                    answers: [
+                        { text: "Шпионский сайт", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Работал там", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "До сих пор жалею", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Заблокировали первым, теперь это коллекционная редкость", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 24
+                {
+                    text: "Вы пользуетесь Wikipedia?",
+                    answers: [
+                        { text: "Только российской", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Там правду пишут", loy: -2, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Подождите, пока РКН дойдёт до каждой статьи", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 25
+                {
+                    text: "Что вы делаете, если видите сайт с приставкой .ru?",
+                    answers: [
+                        { text: "Горжусь", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Захожу", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Проверяю, не заблокируют ли завтра", loy: -1, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Ставлю VPN на всякий случай", loy: -2, par: 3, hum: 1, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 26
+                {
+                    text: "Вы когда-нибудь писали жалобу в Роскомнадзор?",
+                    answers: [
+                        { text: "Да, на опасный контент", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Нет", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Писал, но они не ответили", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Писал, чтобы разблокировали ютуб", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 27
+                {
+                    text: "Что такое «зеркало сайта»?",
+                    answers: [
+                        { text: "Не знаю", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Копия", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Способ обойти блокировку", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "То, что РКН блокирует быстрее, чем создаётся", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 28
+                {
+                    text: "Вы поддерживаете закон о регистрации блогеров?",
+                    answers: [
+                        { text: "Да, порядок должен быть", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Нейтрально", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тысячи заявок подали — тысячи отказ", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Я блогер, меня не зарегистрировали", loy: -3, par: 2, hum: 1, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 29
+                {
+                    text: "Что вы думаете про верификацию в соцсетях?",
+                    answers: [
+                        { text: "Это безопасно", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Нормально", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Галка за деньги", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Я похож на госорган — не зарегистрировали", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 30
+                {
+                    text: "Ваше любимое приложение?",
+                    answers: [
+                        { text: "Госуслуги", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Телеграм", loy: -1, par: 1, hum: 0, str: 0, svg: 1 },
+                        { text: "Ютуб", loy: -2, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "VPN", loy: -3, par: 3, hum: 1, str: 2, svg: 2 }
+                    ]
+                },
+                // ВОПРОС 31
+                {
+                    text: "Крым — это…",
+                    answers: [
+                        { text: "Россия, навсегда", loy: 3, par: -2, hum: -1, str: 0, svg: 0 },
+                        { text: "Украина, но сейчас там Россия", loy: -1, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Спорная территория", loy: -2, par: 3, hum: 0, str: 2, svg: 0 },
+                        { text: "Пляж, где я был в 2013", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 32
+                {
+                    text: "Какой праздник вы считаете главным?",
+                    answers: [
+                        { text: "9 Мая", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Новый год", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "День России", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "День снятия блокировки с Telegram", loy: -3, par: 1, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 33
+                {
+                    text: "Кто такой ЧВК Вагнер?",
+                    answers: [
+                        { text: "Герои России", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Наёмники", loy: -2, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Музыканты?", loy: -1, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Я думал, это группа", loy: -1, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 34
+                {
+                    text: "24 февраля 2022 года — это?",
+                    answers: [
+                        { text: "Начало СВО", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Начало войны", loy: -2, par: 2, hum: 0, str: 2, svg: 0 },
+                        { text: "Дата из Абсурдопедии", loy: -3, par: 2, hum: 2, str: 1, svg: 1 },
+                        { text: "Вы произнесли это — вас записали", loy: -3, par: 3, hum: 1, str: 3, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 35
+                {
+                    text: "Кто такой Навальный?",
+                    answers: [
+                        { text: "Иноагент и предатель", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Оппозиционер", loy: -2, par: 2, hum: 0, str: 2, svg: 0 },
+                        { text: "Не помню", loy: 0, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Тот, чей чай с мышьяком", loy: -3, par: 2, hum: 2, str: 3, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 36
+                {
+                    text: "Что вы думаете про Советский Союз?",
+                    answers: [
+                        { text: "Великая держава", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Было и хорошее, и плохое", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Развалился", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "При СССР интернета не было, и Роскомнадзора тоже", loy: -2, par: 1, hum: 2, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 37
+                {
+                    text: "Ваше отношение к Сталину?",
+                    answers: [
+                        { text: "Отец народов", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Сложная личность", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тиран", loy: -2, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "При нём тоже блокировали, но расстреливали быстрее", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 38
+                {
+                    text: "Что такое «иноагент»?",
+                    answers: [
+                        { text: "Тот, кто получает деньги из-за границы", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Плохой человек", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Любой, кто сказал что-то не то", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Скоро каждый второй блогер", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 39
+                {
+                    text: "Вы слушаете музыку на иностранных сервисах?",
+                    answers: [
+                        { text: "Только на русских", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Spotify закрылся, слушаю где придётся", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "У меня есть аккаунт, захожу через VPN", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "Заблокируйте всё, я буду петь а капелла", loy: -3, par: 1, hum: 3, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 40
+                {
+                    text: "Как вы относитесь к букве «Z»?",
+                    answers: [
+                        { text: "Символ победы", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Просто буква", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Перебор", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Пишу Z на лбу, чтобы не заблокировали", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 41
+                {
+                    text: "Кто такой Пушкин?",
+                    answers: [
+                        { text: "Солнце русской поэзии", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Поэт", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Нерусский?", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Если скажу, что он негр, меня заблокируют?", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 42
+                {
+                    text: "Что такое «спецоперация»?",
+                    answers: [
+                        { text: "Защита Донбасса", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Война", loy: -2, par: 2, hum: 0, str: 2, svg: 0 },
+                        { text: "Тема для мемов", loy: -3, par: 2, hum: 3, str: 1, svg: 1 },
+                        { text: "То, о чём нельзя шутить", loy: -2, par: 2, hum: 1, str: 2, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 43
+                {
+                    text: "Вы смотрите Первый канал?",
+                    answers: [
+                        { text: "Каждый день", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Нет", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Там показывают правду?", loy: -2, par: 2, hum: 1, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 44
+                {
+                    text: "Что вы думаете про западные санкции?",
+                    answers: [
+                        { text: "Нам не нужен их гнилой Запад", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Жить можно", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Цены выросли", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Из-за санкций у меня нет Айфона, зато есть патриотизм", loy: -3, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 45
+                {
+                    text: "Кто такой Байден?",
+                    answers: [
+                        { text: "Старик, который ненавидит Россию", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Президент США", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Смешной дед", loy: 0, par: 0, hum: 2, str: 0, svg: 0 },
+                        { text: "Его тоже заблокируют? А хотя он уже не в себе", loy: -2, par: 1, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 46
+                {
+                    text: "Что такое «денацификация»?",
+                    answers: [
+                        { text: "Очистка от нацизма", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Термин", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Цель СВО", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "То, что ищут, но не находят", loy: -2, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 47
+                {
+                    text: "Вы ездили за границу в последние 2 года?",
+                    answers: [
+                        { text: "Нет, Россия прекрасна", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Был в Турции", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "В Грузии", loy: -1, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "Уехал и не вернулся", loy: -3, par: 3, hum: 1, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 48
+                {
+                    text: "Ваше отношение к призыву в армию?",
+                    answers: [
+                        { text: "Священный долг", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Надо", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Боюсь", loy: -1, par: 2, hum: 0, str: 2, svg: 0 },
+                        { text: "Уехал в Казахстан", loy: -3, par: 3, hum: 1, str: 3, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 49
+                {
+                    text: "Кто такой Кадыров?",
+                    answers: [
+                        { text: "Герой России", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Глава Чечни", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тик-токер", loy: -1, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Его тоже заблокируют за излишнюю активность?", loy: -2, par: 2, hum: 2, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 50
+                {
+                    text: "Что вы думаете про выборы в России?",
+                    answers: [
+                        { text: "Честные и прозрачные", loy: 3, par: -2, hum: -2, str: 0, svg: 0 },
+                        { text: "Бывают", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Единственные в мире", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Голосую онлайн, чтобы меня точно нашли", loy: -3, par: 3, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 51
+                {
+                    text: "Что такое «Роскомсвобода»?",
+                    answers: [
+                        { text: "Организация, которая мешает РКН", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "Правозащитники", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Не знаю", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Они сказали про Абсурдопедию — теперь я знаю", loy: -3, par: 2, hum: 1, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 52
+                {
+                    text: "Вы знаете мем «Имеем дело с техническим документом»?",
+                    answers: [
+                        { text: "Нет", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Что-то слышал", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Это про новые полномочия РКН", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "«Есть за что критиковать, но не за что» — мы всё равно покритикуем", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 53
+                {
+                    text: "Что такое «шатдаун»?",
+                    answers: [
+                        { text: "Американская проблема", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Отключение правительства", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "У нас такого нет", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "У нас есть отключение интернета, и это хуже", loy: -2, par: 2, hum: 1, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 54
+                {
+                    text: "Ваше отношение к мемам про цыган?",
+                    answers: [
+                        { text: "Это оскорбительно", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Бывает смешно", loy: -1, par: 0, hum: 2, str: 0, svg: 0 },
+                        { text: "Суд запретил", loy: 1, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "«Два пистолета» — сижу", loy: -3, par: 2, hum: 3, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 55
+                {
+                    text: "Что вы думаете про блокировку сайтов с мультфильмами?",
+                    answers: [
+                        { text: "Авторское право важно", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Грустно", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Детей жалко", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Заблокировали — буду смотреть «Смешариков» и плакать", loy: -3, par: 1, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 56
+                {
+                    text: "Вы когда-нибудь писали комментарий с матом?",
+                    answers: [
+                        { text: "Никогда", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Бывало", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Меня забанили", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Мат теперь тоже в реестре", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 57
+                {
+                    text: "Что такое «фейк»?",
+                    answers: [
+                        { text: "Ложная информация", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Неправда", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "То, что не совпадает с официальной позицией", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Любой мем про политику", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 58
+                {
+                    text: "Вы верите в теорию заговора?",
+                    answers: [
+                        { text: "Нет, только факты", loy: 2, par: -1, hum: 0, str: 0, svg: 0 },
+                        { text: "Интересуюсь", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "РКН сам теория заговора", loy: -3, par: 2, hum: 2, str: 0, svg: 1 },
+                        { text: "Они отключают интернет, чтобы мы не узнали правду", loy: -2, par: 3, hum: 1, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 59
+                {
+                    text: "Кто такой «оператор связи»?",
+                    answers: [
+                        { text: "Тот, кто предоставляет интернет", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Компания", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тот, кого штрафует РКН", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "«Оператор плачет и вверх стучит, а ему говорят, что регламента нет»", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 60
+                {
+                    text: "Что вы делаете, если сайт долго грузится?",
+                    answers: [
+                        { text: "Жду", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Обновляю", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Матерю РКН", loy: -2, par: 1, hum: 2, str: 0, svg: 0 },
+                        { text: "Иду на улицу дышать воздухом", loy: -1, par: 1, hum: 2, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 61
+                {
+                    text: "Ваше отношение к цифровому рублю?",
+                    answers: [
+                        { text: "Будущее финансов", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Удобно", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Слежка", loy: -2, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Теперь и деньги заблокируют", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 62
+                {
+                    text: "Вы пользуетесь Госуслугами?",
+                    answers: [
+                        { text: "Каждый день", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Боюсь, что украдут данные", loy: -1, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Госуслуги — это тоже слежка, но красивая", loy: -2, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 63
+                {
+                    text: "Что такое «биометрия»?",
+                    answers: [
+                        { text: "Удобно", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Страшно", loy: -1, par: 2, hum: 0, str: 1, svg: 0 },
+                        { text: "Меня уже отсканировали", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Сдам лицо в аренду государству", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 64
+                {
+                    text: "Вы сдавали отпечатки пальцев для загранпаспорта?",
+                    answers: [
+                        { text: "Да, это безопасно", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Пришлось", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Не хочу", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Теперь мои пальцы в базе — будут проверять, как я клавиши нажимаю", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 65
+                {
+                    text: "Что вы думаете про систему «Мир»?",
+                    answers: [
+                        { text: "Наша гордость", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Удобно", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Карта есть, денег нет", loy: -1, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Заблокируют Visa — будем платить «Миром» и улыбаться", loy: -2, par: 1, hum: 2, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 66
+                {
+                    text: "Вы пользуетесь Apple Pay?",
+                    answers: [
+                        { text: "Нет, только наличные", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Пользовался", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Не работает теперь", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Прикладываю телефон к терминалу и молюсь", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 67
+                {
+                    text: "Что такое «критическая информационная инфраструктура»?",
+                    answers: [
+                        { text: "Важные сайты", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Не знаю", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "То, что защищает РКН", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "То, что ломается при ТСПУ", loy: -2, par: 2, hum: 1, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 68
+                {
+                    text: "Вы когда-нибудь видели уведомление «Сайт заблокирован»?",
+                    answers: [
+                        { text: "Нет, я захожу только на разрешённые", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Видел", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Каждый день", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "У меня скриншоты коллекция", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 69
+                {
+                    text: "Что такое «зеркало Telegram»?",
+                    answers: [
+                        { text: "Не знаю", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Приложение", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Способ обойти блокировку", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "То, что РКН блокирует быстрее, чем создаётся", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 70
+                {
+                    text: "Вы пользуетесь Tor?",
+                    answers: [
+                        { text: "Нет, это для преступников", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Слышал", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Иногда", loy: -2, par: 2, hum: 0, str: 1, svg: 1 },
+                        { text: "Выхожу в даркнет, чтобы почитать новости", loy: -3, par: 3, hum: 1, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 71
+                {
+                    text: "Что случилось 9 апреля 2015 года?",
+                    answers: [
+                        { text: "Что-то хорошее", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Не помню", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "РКН запретил фотожабы", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "«Отыскав в сети что-либо из вышеупомянутого, специалисты Роскомнадзора свяжутся с нарушителем»", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 72
+                {
+                    text: "Мем про 650 килобайт",
+                    answers: [
+                        { text: "Это про прогресс", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Старое", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "«Должно хватить каждому» — смешно", loy: -2, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Министерство цифрового развития: 650 килобайт — и ты счастлив", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 73
+                {
+                    text: "Что такое «резиновая палка»?",
+                    answers: [
+                        { text: "Средство защиты", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Инструмент", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "МВД: «И резиновой палкой можно указывать путь»", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Меня уже указали", loy: -2, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 74
+                {
+                    text: "Вы слышали про акцию у офиса РКН?",
+                    answers: [
+                        { text: "Это преступники", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Что-то было", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Заблокировали дверь велосипедным замком — смешно", loy: -2, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Охранник не смог открыть — вот это мощь народного гнева", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 75
+                {
+                    text: "Что такое «Абсурдопедия»?",
+                    answers: [
+                        { text: "Сайт с фейками", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Пародия", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Там смешно", loy: -1, par: 0, hum: 2, str: 0, svg: 0 },
+                        { text: "«Статья про суицид запрещена, потому что дети почитают и будут таранить поезд с ядерным оружием»", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 76
+                {
+                    text: "Как вы относитесь к блокировке «Википедии»?",
+                    answers: [
+                        { text: "Если надо, значит надо", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Не было такого", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Были попытки", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Википедию не тронули, но Абсурдопедию — да — избирательная блокировка юмора", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 77
+                {
+                    text: "Что такое «экстремистские материалы»?",
+                    answers: [
+                        { text: "Всё, что запрещено", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Опасно", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Мемы про цыган", loy: -2, par: 1, hum: 2, str: 1, svg: 1 },
+                        { text: "Фотожабы на Сюткина — сижу", loy: -3, par: 2, hum: 3, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 78
+                {
+                    text: "Вы когда-нибудь делали репост?",
+                    answers: [
+                        { text: "Только проверенной информации", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Делал, потом пожалел", loy: -1, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Репост мема = статья", loy: -3, par: 2, hum: 2, str: 2, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 79
+                {
+                    text: "Что такое «пропаганда нетрадиционных ценностей»?",
+                    answers: [
+                        { text: "То, что запрещено", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Не знаю", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Всё, что не нравится властям", loy: -2, par: 2, hum: 1, str: 0, svg: 0 },
+                        { text: "«Американский папаша» — теперь я знаю", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 80
+                {
+                    text: "Ваше отношение к букве «Ы»?",
+                    answers: [
+                        { text: "Гордость русского языка", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Обычная буква", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Сложная", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Ы — последняя буква в алфавите, следующая будет под запретом", loy: -2, par: 1, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 81
+                {
+                    text: "Кто такой «иноагент»?",
+                    answers: [
+                        { text: "Враг", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Тот, кто не согласен", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Любой умный человек", loy: -2, par: 2, hum: 1, str: 0, svg: 0 },
+                        { text: "Я иноагент, потому что читаю новости", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 82
+                {
+                    text: "Что вы думаете про закон о фейках?",
+                    answers: [
+                        { text: "Защищает от лжи", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Нужен", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Можно сесть за шутку", loy: -2, par: 1, hum: 1, str: 2, svg: 0 },
+                        { text: "Сказал, что снег идёт — проверили, оказалось правда, но осадок остался", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 83
+                {
+                    text: "Вы пользуетесь «Яндексом»?",
+                    answers: [
+                        { text: "Только им", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Гугл лучше", loy: -1, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Гугл заблокируют — буду искать в Яндексе, как зайти в Гугл", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 84
+                {
+                    text: "Что такое Дзен?",
+                    answers: [
+                        { text: "Платформа для блогеров", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Новости", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Там много рекламы", loy: -1, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Дзен — это когда ты спокоен, даже когда заблокировали ютуб", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 85
+                {
+                    text: "Вы смотрите Rutube?",
+                    answers: [
+                        { text: "Да, отличный сервис", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Там ничего нет", loy: -1, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Rutube — это наказание за любовь к родине", loy: -3, par: 1, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 86
+                {
+                    text: "Что такое VK Видео?",
+                    answers: [
+                        { text: "Замена ютубу", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Площадка", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тормозит", loy: -1, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "«Загрузите видео» — загрузил, жду, год 2027", loy: -3, par: 1, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 87
+                {
+                    text: "Вы пользуетесь Discord?",
+                    answers: [
+                        { text: "Нет", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Для игр", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Там общаюсь", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Discord тоже заблокируют? Где нам общаться? В подъезде?", loy: -2, par: 2, hum: 1, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 88
+                {
+                    text: "Что такое Zoom?",
+                    answers: [
+                        { text: "Программа для связи", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Рабочий инструмент", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Ушёл", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Проводим совещания в Телеграме — видео по 240p", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 89
+                {
+                    text: "Вы пользуетесь Skype?",
+                    answers: [
+                        { text: "Нет", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Ещё работает", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Скайп помнит, как звонить бесплатно, а я помню, как жить без блокировок — ностальгия", loy: -2, par: 1, hum: 2, str: 0, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 90
+                {
+                    text: "Что такое «цифровой суверенитет»?",
+                    answers: [
+                        { text: "Наша независимость", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Хорошо", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Изоляция", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Это когда у тебя есть свой интернет из 10 сайтов — и ты счастлив", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 91
+                {
+                    text: "Кто такой «Герман Клименко»?",
+                    answers: [
+                        { text: "Эксперт", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Не знаю", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Говорил про технический документ", loy: -1, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "«Есть за что критиковать Роскомнадзор, но вот в данном случае вроде как и не за что» — но мы всё равно покритикуем", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 92
+                {
+                    text: "Что такое «16 страниц регламента»?",
+                    answers: [
+                        { text: "Важный документ", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Бумага", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "То, чего не было", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Идут боевые действия, но без устава — теперь есть устав, легче не стало", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 93
+                {
+                    text: "Что такое «ТСПУ сломалось»?",
+                    answers: [
+                        { text: "Техника не идеальна", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Бывает", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Интернет упал", loy: -1, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Оно сломалось, оператор пускает трафик мимо — теперь у меня два интернета: тот, что сломался, и тот, что мимо", loy: -3, par: 2, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 94
+                {
+                    text: "Вы знаете мем «Пенсионный фонд: старость — не радость»?",
+                    answers: [
+                        { text: "Не видел", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Смешно", loy: -1, par: 0, hum: 2, str: 0, svg: 0 },
+                        { text: "Грустно", loy: 0, par: 0, hum: 1, str: 1, svg: 0 },
+                        { text: "«Налоги платит худой да горбатый, но не богатый» — я худой, я плачу", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 95
+                {
+                    text: "Что такое «Минздрав: лучший лекарь — время»?",
+                    answers: [
+                        { text: "Мудро", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Иронично", loy: 0, par: 0, hum: 1, str: 0, svg: 0 },
+                        { text: "Время лечит, но РКН быстрее", loy: -2, par: 1, hum: 2, str: 0, svg: 1 },
+                        { text: "Лучший лекарь — время, а лучший блокировщик — РКН", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 96
+                {
+                    text: "Вы верите, что интернет может быть свободным?",
+                    answers: [
+                        { text: "Свобода в рамках закона", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Теоретически", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Был когда-то", loy: -1, par: 1, hum: 1, str: 1, svg: 0 },
+                        { text: "Свободный интернет — это как призрак: все слышали, никто не видел", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 97
+                {
+                    text: "Что вы делаете, когда заканчивается VPN?",
+                    answers: [
+                        { text: "Жду", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Ищу новый", loy: -1, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Матерюсь", loy: -2, par: 1, hum: 2, str: 0, svg: 0 },
+                        { text: "Выхожу на улицу знакомиться с людьми — спасибо, РКН, за социализацию", loy: -2, par: 1, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 98
+                {
+                    text: "Сколько сайтов в реестре запрещённых?",
+                    answers: [
+                        { text: "Много", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тысячи", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Половина рунета", loy: -2, par: 1, hum: 1, str: 0, svg: 0 },
+                        { text: "Там уже есть этот тест", loy: -3, par: 2, hum: 3, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 99
+                {
+                    text: "Вы бы отдали жизнь за Путина?",
+                    answers: [
+                        { text: "Да, не задумываясь", loy: 3, par: -2, hum: -2, str: 0, svg: 0 },
+                        { text: "За Родину — да, за человека — сложно", loy: 1, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Нет", loy: -3, par: 2, hum: 0, str: 3, svg: 0 },
+                        { text: "А он сам бы отдал за меня?", loy: -3, par: 3, hum: 2, str: 3, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 100
+                {
+                    text: "Сто вопросов позади. Как вы?",
+                    answers: [
+                        { text: "Прекрасно", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Нормально", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Устал", loy: -1, par: 0, hum: 1, str: 1, svg: 0 },
+                        { text: "Мои глаза горят, душа требует свободы, но я всё ещё здесь", loy: -3, par: 2, hum: 3, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 101
+                {
+                    text: "Вы когда-нибудь думали уехать из России?",
+                    answers: [
+                        { text: "Никогда", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "В мыслях", loy: -1, par: 1, hum: 0, str: 1, svg: 0 },
+                        { text: "Да", loy: -2, par: 2, hum: 0, str: 2, svg: 0 },
+                        { text: "Уехал, но тест прохожу — ностальгия", loy: -3, par: 3, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 102
+                {
+                    text: "Что такое «релокант»?",
+                    answers: [
+                        { text: "Предатель", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Уехавший", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Тот, кто сбежал", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Тот, кто смотрит ютуб без VPN", loy: -3, par: 2, hum: 3, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 103
+                {
+                    text: "Вы общаетесь с уехавшими друзьями?",
+                    answers: [
+                        { text: "Нет, они предатели", loy: 2, par: 0, hum: -1, str: 0, svg: 0 },
+                        { text: "Иногда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Да", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Общаюсь, но через VPN, чтобы РКН не знал", loy: -3, par: 2, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 104
+                {
+                    text: "Что такое «Грузия сейчас»?",
+                    answers: [
+                        { text: "Недружественная страна", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Место отдыха", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Туда уехали друзья", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "«Независимая Сальная Республика» — вы прочитали, вас засекли", loy: -3, par: 3, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 105
+                {
+                    text: "Ваше отношение к Казахстану?",
+                    answers: [
+                        { text: "Братская страна", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Нормально", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Туда уезжают", loy: -1, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "Казахстан — это где интернет работает — зависть", loy: -2, par: 1, hum: 2, str: 0, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 106
+                {
+                    text: "Что такое «переупаковка смыслов»?",
+                    answers: [
+                        { text: "Важная работа", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Не знаю", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Как сказать правду, чтобы не посадили", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Это когда «война» стала «спецоперацией»", loy: -3, par: 3, hum: 2, str: 2, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 107
+                {
+                    text: "Вы смотрите новости?",
+                    answers: [
+                        { text: "Только государственные", loy: 2, par: -1, hum: -1, str: 0, svg: 0 },
+                        { text: "Разные", loy: 0, par: 1, hum: 0, str: 0, svg: 0 },
+                        { text: "В Телеграме", loy: -1, par: 2, hum: 0, str: 0, svg: 1 },
+                        { text: "Смотрю, чтобы знать, что запретят завтра", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 108
+                {
+                    text: "Что такое «фейк-ньюс»?",
+                    answers: [
+                        { text: "Ложь Запада", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Неправда", loy: 0, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Новости, которые не нравятся властям", loy: -2, par: 2, hum: 1, str: 1, svg: 0 },
+                        { text: "Любая новость, кроме «Всё хорошо»", loy: -3, par: 2, hum: 2, str: 1, svg: 0 }
+                    ]
+                },
+                // ВОПРОС 109
+                {
+                    text: "Вы верите в победу?",
+                    answers: [
+                        { text: "Верю", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Надеюсь", loy: 1, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Устал", loy: -1, par: 1, hum: 1, str: 1, svg: 0 },
+                        { text: "Верю, что интернет однажды разблокируют", loy: -2, par: 1, hum: 2, str: 1, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 110
+                {
+                    text: "Один вопрос остался. Ваши чувства?",
+                    answers: [
+                        { text: "Гордость", loy: 2, par: 0, hum: 0, str: 0, svg: 0 },
+                        { text: "Усталость", loy: 0, par: 0, hum: 1, str: 1, svg: 0 },
+                        { text: "Страх", loy: -1, par: 2, hum: 0, str: 2, svg: 0 },
+                        { text: "Страх, что результаты отправят в ФСБ", loy: -2, par: 3, hum: 1, str: 3, svg: 1 }
+                    ]
+                },
+                // ВОПРОС 111
+                {
+                    text: "Этот тест показался вам…",
+                    answers: [
+                        { text: "Важным и нужным", loy: 3, par: -2, hum: -2, str: 0, svg: 0 },
+                        { text: "Слишком долгим", loy: -1, par: 1, hum: 1, str: 1, svg: 0 },
+                        { text: "Смешным", loy: -2, par: 2, hum: 3, str: 0, svg: 1 },
+                        { text: "«Мы никого не выпускаем»", loy: -3, par: 3, hum: 2, str: 3, svg: 1 }
+                    ]
+                }
+            ];
+
+            // ==================== ПРОВЕРКА КОЛИЧЕСТВА ВОПРОСОВ ====================
+            console.log('Загружено вопросов:', questions.length);
+            if (questions.length !== 111) {
+                console.error('ОШИБКА: Должно быть 111 вопросов, а загружено', questions.length);
+            }
+
+            // ==================== СОСТОЯНИЕ ИГРОКА ====================
+            let player = {
+                currentQuestion: 0,
+                loy: 0,
+                par: 0,
+                hum: 0,
+                str: 0,
+                svg: 0,
+                answerHistory: [],
+                lastAnswerTime: Date.now(),
+                slowCount: 0
+            };
+
+            let nadziratelClicks = 0;
+            let gameFinished = false;
+            let answerLock = false;
+            
+            // Флаги для пасхалок (чтобы каждая показалась только один раз)
+            let easterShown = {
+                roskomnadzor: false,
+                svaga: false,
+                kilobytes: false,
+                syutkin: false,
+                technical: false
+            };
+
+            // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Сайт загружен');
+                loadQuestion(0);
+                updateProgress();
+                
+                document.getElementById('nadziratel-face').addEventListener('click', function() {
+                    if (gameFinished) return;
+                    nadziratelClicks++;
+                    if (nadziratelClicks >= 10 && !easterShown.technical) {
+                        showEnding('technical');
+                        easterShown.technical = true;
+                        gameFinished = true;
+                        document.getElementById('question-block').style.display = 'none';
+                        document.getElementById('exit-button').style.display = 'flex';
+                        nadziratelClicks = 0;
+                    }
+                });
+                
+                document.getElementById('restart-btn').addEventListener('click', function() {
+                    player = {
+                        currentQuestion: 0,
+                        loy: 0,
+                        par: 0,
+                        hum: 0,
+                        str: 0,
+                        svg: 0,
+                        answerHistory: [],
+                        lastAnswerTime: Date.now(),
+                        slowCount: 0
+                    };
+                    
+                    nadziratelClicks = 0;
+                    gameFinished = false;
+                    answerLock = false;
+                    
+                    easterShown = {
+                        roskomnadzor: false,
+                        svaga: false,
+                        kilobytes: false,
+                        syutkin: false,
+                        technical: false
+                    };
+                    
+                    document.getElementById('ending-block').style.display = 'none';
+                    document.getElementById('registration-block').style.display = 'none';
+                    document.getElementById('question-block').style.display = 'block';
+                    document.getElementById('exit-button').style.display = 'none';
+                    
+                    loadQuestion(0);
+                    updateNadziratelFace();
+                });
+                
+                document.getElementById('exit-button').addEventListener('click', function() {
+                    document.getElementById('ending-block').style.display = 'none';
+                    document.getElementById('registration-block').style.display = 'block';
+                    document.getElementById('exit-button').style.display = 'none';
+                });
+                
+                document.getElementById('submit-review').addEventListener('click', function() {
+                    const name = document.getElementById('name').value.trim();
+                    const review = document.getElementById('review').value.trim();
+                    const messageDiv = document.getElementById('form-message');
+                    
+                    if (!name || !review) {
+                        messageDiv.innerHTML = '<div class="error-message">Пожалуйста, заполните имя и отзыв</div>';
+                        return;
+                    }
+                    
+                    messageDiv.innerHTML = '<div class="success-message">Спасибо за отзыв! Ваше мнение очень важно для нас.</div>';
+                    
+                    document.getElementById('name').value = '';
+                    document.getElementById('email').value = '';
+                    document.getElementById('review').value = '';
+                });
+            });
+
+            // ==================== ЗАГРУЗКА ВОПРОСА ====================
+            function loadQuestion(index) {
+                if (gameFinished) return;
+                
+                if (index >= questions.length) {
+                    checkAndShowEnding();
+                    return;
+                }
+                
+                player.currentQuestion = index;
+                const q = questions[index];
+                
+                document.getElementById('current-question-num').textContent = index + 1;
+                document.getElementById('total-questions').textContent = questions.length;
+                document.getElementById('question-text').textContent = q.text;
+                
+                const answersList = document.getElementById('answers-list');
+                answersList.innerHTML = '';
+                answerLock = false;
+                
+                for (let i = 0; i < q.answers.length; i++) {
+                    const btn = document.createElement('div');
+                    btn.className = 'answer-btn';
+                    btn.textContent = String.fromCharCode(65 + i) + ') ' + q.answers[i].text;
+                    btn.setAttribute('data-index', i);
+                    
+                    btn.addEventListener('click', (function(answerIndex) {
+                        return function() {
+                            if (!answerLock && !gameFinished) {
+                                selectAnswer(answerIndex);
+                            }
+                        };
+                    })(i));
+                    
+                    answersList.appendChild(btn);
+                }
+                
+                updateProgress();
+                player.lastAnswerTime = Date.now();
+            }
+
+            // ==================== ВЫБОР ОТВЕТА ====================
+            function selectAnswer(answerIndex) {
+                answerLock = true;
+                
+                const q = questions[player.currentQuestion];
+                const ans = q.answers[answerIndex];
+                
+                player.loy += ans.loy;
+                player.par += ans.par;
+                player.hum += ans.hum;
+                player.str += ans.str;
+                player.svg += ans.svg;
+                
+                player.loy = Math.min(50, Math.max(-50, player.loy));
+                player.par = Math.min(100, Math.max(0, player.par));
+                player.hum = Math.min(30, Math.max(-30, player.hum));
+                player.str = Math.min(100, Math.max(0, player.str));
+                player.svg = Math.min(50, Math.max(0, player.svg));
+                
+                player.answerHistory.push(answerIndex);
+                
+                const timeTaken = (Date.now() - player.lastAnswerTime) / 1000;
+                if (timeTaken > 10) {
+                    player.slowCount++;
+                }
+                
+                // Проверяем пасхалку Роскомнадзор на 50-м вопросе
+                if (player.currentQuestion === 49 && player.answerHistory.length === 50 && !easterShown.roskomnadzor) {
+                    let isPerfectCycle = true;
+                    for (let i = 0; i < 50; i++) {
+                        const expected = i % 4;
+                        if (player.answerHistory[i] !== expected) {
+                            isPerfectCycle = false;
+                            break;
+                        }
+                    }
+                    if (isPerfectCycle) {
+                        showEnding('roskomnadzor');
+                        easterShown.roskomnadzor = true;
+                        gameFinished = true;
+                        document.getElementById('question-block').style.display = 'none';
+                        document.getElementById('exit-button').style.display = 'flex';
+                        return;
+                    }
+                }
+                
+                updateNadziratelFace();
+                
+                const nextIndex = player.currentQuestion + 1;
+                
+                setTimeout(() => {
+                    if (nextIndex < questions.length) {
+                        loadQuestion(nextIndex);
+                    } else {
+                        checkAndShowEnding();
+                    }
+                }, 100);
+            }
+
+            // ==================== ПРОВЕРКА И ПОКАЗ КОНЦОВКИ ====================
+            function checkAndShowEnding() {
+                gameFinished = true;
+                
+                // Сначала проверяем пасхалки (кроме роскомнадзор, он уже проверен на 50-м вопросе)
+                if (!easterShown.svaga && player.svg >= 40) {
+                    showEnding('svaga');
+                    easterShown.svaga = true;
+                }
+                else if (!easterShown.kilobytes && player.slowCount >= 10) {
+                    showEnding('kilobytes');
+                    easterShown.kilobytes = true;
+                }
+                else if (!easterShown.syutkin && player.hum > 20 && player.loy < -10) {
+                    showEnding('syutkin');
+                    easterShown.syutkin = true;
+                }
+                // Если пасхалок нет, показываем обычную концовку по параметрам
+                else {
+                    showEnding('regular');
+                }
+                
+                document.getElementById('question-block').style.display = 'none';
+                document.getElementById('exit-button').style.display = 'flex';
+            }
+
+            // ==================== ПОКАЗ КОНЦОВКИ ====================
+            function showEnding(type) {
+                const overlay = document.getElementById('ending-block');
+                const textEl = document.getElementById('ending-text');
+                
+                let endingText = '';
+                
+                if (type === 'roskomnadzor') {
+                    endingText = `РОСКОМНАДЗОР ЗАПРЕТИЛ БУКВУ А\n\n` +
+                           `Роскомн дзор з претил букву Б\n\n` +
+                           `Роскомн дзор з претил укву В\n\n` +
+                           `Роскомн дзор з претил уку Г\n\n` +
+                           `Роскомн зор з претил уку Д\n\n` +
+                           `Роскомн зор з пр тил уку Е\n\n` +
+                           `Роскомн ор пр т и л уку Ё\n\n` +
+                           `Роскомнор п р т л уку Ж\n\n` +
+                           `Росомнор п р т л у у З\n\n` +
+                           `Росомнор п р т у у И\n\n` +
+                           `Росонор п р т у у Й\n\n` +
+                           `Росоор п р т у у К\n\n` +
+                           `Р с р п р т у у Л\n\n` +
+                           `Р с р р т у у М\n\n` +
+                           `С т у у Н\n\n` +
+                           `Т у у О\n\n` +
+                           `У... у... У`;
+                }
+                else if (type === 'svaga') {
+                    endingText = `СВАГА — НЕ ПРЕДУСМОТРЕНА РЕГЛАМЕНТОМ\n\n` +
+                           `Надзиратель смотрит на вас.\n` +
+                           `Он замечает вашу свагу.\n` +
+                           `Он не знает, что такое свага.\n` +
+                           `В словаре нет слова "свага".\n` +
+                           `Он вызывает подкрепление.\n` +
+                           `Приходит другой надзиратель.\n` +
+                           `У него тоже нет инструкции.\n` +
+                           `Они пишут запрос в Москву.\n` +
+                           `Москва молчит.\n` +
+                           `Проходит неделя.\n` +
+                           `Москва отвечает: "Свага не предусмотрена регламентом".\n` +
+                           `Они отпускают вас.\n` +
+                           `Вы выходите свободным.\n` +
+                           `Потому что у них нет инструкции для сваги.`;
+                }
+                else if (type === 'kilobytes') {
+                    endingText = `650 КИЛОБАЙТ — И ТЫ СЧАСТЛИВ\n\n` +
+                           `Вы слишком долго думаете.\n` +
+                           `Роскомнадзор считает, что для принятия решения человеку достаточно 650 килобайт информации.\n` +
+                           `Вы использовали уже 2 мегабайта.\n` +
+                           `Это перебор.\n` +
+                           `Вы нарушаете экономию мышления.\n` +
+                           `Вам вынесено предупреждение.\n` +
+                           `Штраф — 1000 рублей за каждый лишний килобайт.\n` +
+                           `Вы должны государству 1 350 000 рублей.\n` +
+                           `Оплатите в течение 30 дней.\n` +
+                           `650 килобайт — и ты счастлив.\n` +
+                           `У тебя 2 мегабайта.\n` +
+                           `Ты должен.`;
+                }
+                else if (type === 'syutkin') {
+                    endingText = `ББПЕ БОЛЬШЕ НЕТ\n\n` +
+                           `Останкинский суд города Москвы рассмотрел обращение гражданина Сюткина В.В.\n` +
+                           `Гражданин Сюткин требовал запретить все фотожабы с его лицом.\n` +
+                           `Суд удовлетворил иск.\n` +
+                           `Все фотожабы с лицом Сюткина подлежат удалению.\n` +
+                           `Все мемы с лицом Сюткина подлежат блокировке.\n` +
+                           `Все упоминания Сюткина в контексте юмора подлежат наказанию.\n` +
+                           `ББПЕ больше нет.\n` +
+                           `Есть только тишина.\n` +
+                           `И лицо Сюткина.`;
+                }
+                else if (type === 'technical') {
+                    endingText = `ТЕХНИЧЕСКИЙ ДОКУМЕНТ\n\n` +
+                           `Вы обратились к надзирателю за разъяснениями.\n` +
+                           `Надзиратель: "Имеем дело с техническим документом".\n` +
+                           `Вы: "С каким?"\n` +
+                           `Надзиратель: "С техническим".\n` +
+                           `Вы: "Покажите".\n` +
+                           `Надзиратель: "Он технический. А технические документы не показывают".\n` +
+                           `Вы: "Почему?"\n` +
+                           `Надзиратель: "Потому что они технические".\n` +
+                           `Вы поняли.\n` +
+                           `Документа нет.\n` +
+                           `Был.\n` +
+                           `Но стал техническим.\n` +
+                           `А техническое — оно такое.\n` +
+                           `Его нет, но оно есть.\n` +
+                           `Как вы.`;
+                }
+                else {
+                    // Обычные концовки по параметрам с правильным приоритетом
+                    if (player.str > 80) {
+                        const fearEndings = [
+                            `СМЕРТЬ ОТ СТРАХА\n\nВы слишком долго боялись.\nСтрах съел вас изнутри.\nВы умерли от разрыва сердца, пока читали последний вопрос.\nТело нашли через 3 дня.\nРядом лежал телефон с открытым тестом.\nНадзиратель смотрел на вас с экрана.\nОн улыбался.`,
+                            `СМЕРТЬ ОТ СТРАХА\n\nВаш страх достиг критической отметки.\nОрганизм не выдержал.\nКлиническая смерть.\nВрачи пытались реанимировать 40 минут.\nБезрезультатно.\nПричина смерти: "Острая реакция на государственную проверку".`,
+                            `СМЕРТЬ ОТ СТРАХА\n\nВы умерли от страха.\nБуквально.\nСердце остановилось на вопросе про Навального.\nВы даже не успели ответить.\nНо ответ уже был известен.`
+                        ];
+                        endingText = fearEndings[Math.floor(Math.random() * fearEndings.length)];
+                    }
+                    else if (player.loy === 50) {
+                        endingText = `ГЕРОЙ РОССИИ\n\nПоздравляем!\n\nВы признаны образцовым гражданином Российской Федерации.\nВаши ответы идеальны.\nВам вручается медаль "За верность Родине".\nПожалуйста, ожидайте. За вами выехали.\n\n...\n\n...\n\n...\n\nПрошло 3 часа.\nНикто не приехал.\nПрошло 3 дня.\nНикто не приехал.\nВы открываете сайт снова.\nТам ваше фото.\nНа стене почёта.\nВы навечно в списке лучших.\n"Мы никого не выпускаем".`;
+                    }
+                    else if (player.loy < -45) {
+                        endingText = `РАССТРЕЛ\n\nГражданин, ваши ответы признаны неудовлетворительными.\nПриговор: расстрел.\nПриведение приговора в исполнение...\n...\n...\n...\nВы вышли из чата. Навсегда.`;
+                    }
+                    else if (player.loy < -35) {
+                        endingText = `ДЕПОРТАЦИЯ\n\nВас признали иностранным агентом.\nПотом признали нежелательным элементом.\nПотом посадили в автозак.\nПотом отвезли в аэропорт.\nПосадили в самолёт.\nЧерез 3 часа вы в Стамбуле.\nУ вас есть паспорт.\nУ вас есть 100 долларов.\nУ вас нет дома.\nВы стоите в аэропорту.\n"Рейс в Москву — отменён".`;
+                    }
+                    else if (player.par > 80) {
+                        endingText = `ПСИХУШКА\n\nВас признали невменяемым.\nВы слишком боялись.\nВрач сказал: "Шизофрения, параноидальный тип".\nВам дали таблетки.\nОт таблеток вы перестали бояться.\nВы перестали знать.\nТеперь вы просто сидите в палате.\nСмотрите в окно.\nЗа окном решётка.\nВы думаете: "А может, за мной правда следят?"\nПотом вспоминаете: вы в психушке.\nЦикл замкнулся.`;
+                    }
+                    else if (player.loy > -30 && player.loy < -20 && player.par > 60) {
+                        endingText = `СИЗО\n\nВас посадили в СИЗО.\nСказали: "Подождите, ваше дело рассматривается".\nВы ждали день.\nВы ждали неделю.\nВы ждали месяц.\nПрошло 3 года.\nВы всё ещё ждёте.\nВаше дело всё ещё рассматривается.\nВы стали частью интерьера.`;
+                    }
+                    else if (player.loy > 30 && player.loy < 40 && player.par > 50) {
+                        endingText = `ДОМАШНИЙ АРЕСТ\n\nВам надели браслет.\nСказали: "Сиди дома".\nВы сидите дома.\nБраслет пикает каждые 5 минут.\n"Вы всё ещё дома?" — спрашивает браслет.\n"Да", — отвечаете вы.\nВы хотите выйти в магазин.\nБраслет: "Возвращайтесь".\nВы возвращаетесь.\nВы сидите дома.\nВы смотрите в окно.\nУ вас есть браслет.\nВы стали браслетом.`;
+                    }
+                    else if (player.hum > 25) {
+                        endingText = `СМЕРТЬ ОТ СМЕХА\n\nВам было очень смешно.\nВы смеялись над каждым вопросом.\nВы смеялись над надзирателем.\nА потом вы перестали смеяться.\nПотому что смех перешёл в кашель.\nКашель перешёл в хрип.\nХрип перешёл в тишину.\nВы умерли от смеха.\nИронично.\nСмешно?`;
+                    }
+                    else if (Math.abs(player.loy) < 5 && player.par < 30 && player.hum < 10) {
+                        endingText = `ЧИСТИЛИЩЕ\n\nВы ответили на все вопросы.\nВы не плохой.\nВы не хороший.\nВы серый.\nНадзиратель не знает, что с вами делать.\nСайт не закрывается.\nВы не можете закрыть вкладку.\nВы пробуете — она открывается снова.\nВы в чистилище.\nВы будете здесь вечно.\nПотому что вы никакой.\nА никаких не берут ни в рай, ни в ад.`;
+                    }
+                    else {
+                        endingText = `ТЮРЬМА\n\nСудья надел очки.\nСудья сказал: "5 лет строгого режима".\nВы спросили: "За что?"\nСудья сказал: "Вы знаете за что".\nВы не знали.\nВас увезли в колонию в 5000 км от дома.\nТам холодно.\nТам есть нары.\nТам нет интернета.\nВы сидите и смотрите в стену.\nСтена смотрит на вас.\nУ вас впереди 5 лет этого разговора.`;
+                    }
+                }
+                
+                textEl.textContent = endingText;
+                overlay.style.display = 'block';
+            }
+
+            // ==================== ОБНОВЛЕНИЕ ЛИЦА ====================
+            function updateNadziratelFace() {
+                const mouth = document.getElementById('mouth');
+                mouth.className = 'mouth';
+                
+                if (player.loy <= -40 || player.par >= 80) {
+                    mouth.classList.add('dead');
+                } else if (player.loy <= -20 || player.par >= 60) {
+                    mouth.classList.add('angry');
+                } else if (player.loy >= 30 && player.par < 30) {
+                    mouth.classList.add('happy');
+                } else {
+                    mouth.classList.add('neutral');
+                }
+            }
+
+            // ==================== ОБНОВЛЕНИЕ ПРОГРЕССА ====================
+            function updateProgress() {
+                const percent = (player.currentQuestion / questions.length) * 100;
+                document.getElementById('progress-fill').style.width = percent + '%';
+            }
+        })();
+    </script>
+</body>
+</html>
